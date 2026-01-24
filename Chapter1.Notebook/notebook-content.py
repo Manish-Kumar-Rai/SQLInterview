@@ -1268,6 +1268,1927 @@ df_emp.show()
 # - Normalize at least **up to 3NF** to prevent anomalies and ensure consistent data management
 
 
+# MARKDOWN ********************
+
+# ## Question 14: Difference between ISNULL() and COALESCE() in SQL Server
+# 
+# ### Short Answer
+# - **ISNULL()**: SQL Server–specific, returns a **replacement value** if the expression is NULL.  
+# - **COALESCE()**: Standard SQL, returns the **first non-NULL value** from a list of expressions.  
+# - COALESCE() is more **flexible** and **portable**.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# Both **ISNULL()** and **COALESCE()** are used to handle **NULL values** in SQL Server, but differ in **usage, flexibility, and portability**.
+# 
+# ---
+# 
+# ### 1. ISNULL()
+# - Built-in SQL Server function.  
+# - Takes **two arguments**: the expression and the replacement value.  
+# - Returns the **replacement value** if the expression is NULL; otherwise returns the expression.  
+# - Specific to SQL Server.
+# 
+# **Example:**  
+# ```sql
+# SELECT ISNULL(column_name, 'Not available') AS result
+# FROM table_name;
+# -- Result: If column_name is NULL → 'Not available', else the value of column_name.
+# ```
+# ### 2\. COALESCE()
+# 
+# -   Standard SQL function supported by many DBMS.
+# 
+# -   Takes **multiple arguments**.
+# 
+# -   Returns the **first non-NULL value** in the list.
+# 
+# -   If all values are NULL → returns NULL (or can provide a default value at the end).
+# 
+# **Example:**
+# ```sql
+# SELECT COALESCE(column1, column2, column3, 'Not available') AS result
+# FROM table_name;`
+# 
+# --*Result:* Returns the first non-NULL among `column1`, `column2`, `column3`.\
+# --If all are NULL → `'Not available'`.
+# ```
+# * * * * *
+# 
+# ### Key Differences
+# 
+# | Feature | ISNULL() | COALESCE() |
+# | --- | --- | --- |
+# | Arguments | 2 | Multiple |
+# | SQL Standard | SQL Server only | Standard SQL |
+# | Returns | Replacement if NULL | First non-NULL value |
+# | Portability | Limited | High |
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Use **ISNULL()** for simple, two-value NULL handling in SQL Server.
+# 
+# -   Use **COALESCE()** when you need **multiple fallback values** or **cross-platform compatibility**.
+# 
+# -   Remember: **COALESCE() is more flexible and standard**---a good habit for interviews.
+
+
+# CELL ********************
+
+# ISNULL(expr,replacement value) only works in SQL Server
+# SELECT ISNULL(NULL,"Contains null value") AS result;
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+# MAGIC %%sql
+# MAGIC -- COALESCE() works in SQL SERVER and ANSI SQL
+# MAGIC SELECT coalesce(NULL,NULL,"not null","Replacement") AS result;
+
+# METADATA ********************
+
+# META {
+# META   "language": "sparksql",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# MARKDOWN ********************
+
+# ## Question 15: How do you ensure that only values between 1 to 5 are allowed in an integer column?
+# 
+# ### Short Answer
+# - Use a **CHECK constraint** with a **BETWEEN clause** to enforce that only values **1 to 5** can be inserted or updated.  
+# - Prevents invalid data from entering the table, ensuring **data integrity**.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# A **CHECK constraint** allows you to define a condition that must be **true for all rows** in a table.  
+# - If a value violates the constraint, the **INSERT** or **UPDATE** operation is rejected.  
+# - Using `BETWEEN 1 AND 5` ensures that only integers from **1 to 5 inclusive** are allowed.
+# 
+# ---
+# 
+# ### Example: Create Table with CHECK Constraint
+# 
+# ```sql
+# CREATE TABLE your_table (
+#     your_column INT,
+#     CONSTRAINT chk_value_range CHECK (your_column BETWEEN 1 AND 5)
+# );
+# ```
+# ### Example: Insert Values
+# 
+# **Valid Insert:**
+# 
+# ```sql
+# INSERT INTO your_table (your_column) VALUES (3);
+# ```
+# 
+# -   ✅ Accepted, because 3 is between 1 and 5
+# 
+# **Invalid Insert:**
+# 
+# ```sql
+# INSERT INTO your_table (your_column) VALUES (7);
+# ```
+# 
+# -   ❌ Rejected, because 7 is outside the allowed range
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   **CHECK constraints** enforce **business rules at the database level**.
+# 
+# -   Use **BETWEEN** for ranges and **logical operators** (`AND`, `OR`) for complex conditions.
+# 
+# -   Always name constraints for **better error handling and readability**.
+
+
+# MARKDOWN ********************
+
+# ## Question 16: Difference between CHAR and VARCHAR data types in SQL
+# 
+# ### Short Answer
+# - **CHAR**: Fixed-length character strings, padded with spaces if shorter than defined length.  
+# - **VARCHAR**: Variable-length character strings, uses storage based on actual length of data.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# In SQL, both **CHAR** and **VARCHAR** store character data, but they differ in **storage and behavior**:
+# 
+# ---
+# 
+# ### 1. CHAR Data Type
+# - Stands for **character**, used for **fixed-length strings**.  
+# - Column length is **fixed**; shorter values are **padded with spaces**.  
+# - Storage is **constant**, regardless of actual string length.  
+# - Suitable for **consistent-length data**.
+# 
+# **Example:**  
+# ```sql
+# CREATE TABLE Employees (
+#     Emp_Code CHAR(10)
+# );
+# 
+# INSERT INTO Employees (Emp_Code) VALUES ('A123');
+# -- Stored as 'A123      ' (padded with spaces to length 10)
+# ```
+# 
+# ### 2\. VARCHAR Data Type
+# 
+# -   Stands for **variable-length character**.
+# 
+# -   Column length can vary up to a **maximum defined length**.
+# 
+# -   Only uses **storage for actual string length** (no padding).
+# 
+# -   Efficient for **variable-length data**.
+# 
+# **Example:**
+# ```sql
+# CREATE TABLE Employees (
+#     Emp_Name VARCHAR(50)
+# );
+# 
+# INSERT INTO Employees (Emp_Name) VALUES ('John');
+# -- Stored as 'John' (length 4, no padding)`
+# ```
+# * * * * *
+# 
+# ### Key Differences
+# 
+# | Feature | CHAR | VARCHAR |
+# | --- | --- | --- |
+# | Length | Fixed | Variable |
+# | Padding | Yes | No |
+# | Storage | Always occupies full length | Only uses required space |
+# | Best Use | Data with consistent length | Data with variable length |
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Use **CHAR** for fixed-size codes like `country_code`, `gender`.
+# 
+# -   Use **VARCHAR** for names, addresses, descriptions, or any variable-length data.
+# 
+# -   Remember: **CHAR wastes storage for short strings; VARCHAR is flexible and space-efficient.**
+
+
+# MARKDOWN ********************
+
+# ## Question 17: Difference between VARCHAR and NVARCHAR in SQL Server
+# 
+# ### Short Answer
+# - **VARCHAR**: Stores **non-Unicode** characters (ASCII), uses less storage.  
+# - **NVARCHAR**: Stores **Unicode** characters, supports **multilingual data**, uses more storage.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# In SQL Server, both **VARCHAR** and **NVARCHAR** are used to store character data, but they differ in **encoding and storage requirements**:
+# 
+# ---
+# 
+# ### 1. VARCHAR
+# - Stores **non-Unicode characters** using the database's default code page.  
+# - Suitable for **single-byte character sets** (English, numbers, symbols).  
+# - Uses **1 byte per character**.
+# 
+# **Example:**  
+# ```sql
+# CREATE TABLE Employees (
+#     Emp_Name VARCHAR(50)
+# );
+# 
+# INSERT INTO Employees (Emp_Name) VALUES ('John');
+# ```
+# ### 2\. NVARCHAR
+# 
+# -   Stores **Unicode characters** using **UTF-16 encoding**.
+# 
+# -   Supports **multi-byte characters** for international languages.
+# 
+# -   Uses **2 bytes per character**, consuming more storage.
+# 
+# **Example:**
+# ```sql
+# CREATE TABLE Employees (
+#     Emp_Name NVARCHAR(50)
+# );
+# 
+# INSERT INTO Employees (Emp_Name) VALUES (N'张伟');  -- Unicode string`
+# ```
+# * * * * *
+# 
+# ### Key Differences
+# 
+# | Feature | VARCHAR | NVARCHAR |
+# | --- | --- | --- |
+# | Encoding | Non-Unicode | Unicode (UTF-16) |
+# | Storage | 1 byte per char | 2 bytes per char |
+# | Language Support | Single-byte (English) | Multi-byte, multilingual |
+# | Best Use | English-only data | International/multilingual data |
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   **VARCHAR** → Efficient for English or single-byte text
+# 
+# -   **NVARCHAR** → Always use when **storing international/multilingual data**
+# 
+# -   Prefix Unicode literals with `N` when inserting into NVARCHAR columns
+
+
+# MARKDOWN ********************
+
+# ## Question 18: How do you get Day, Month, and Year from a date in SQL Server?
+# 
+# ### Short Answer
+# - Use the built-in functions: **DAY()**, **MONTH()**, **YEAR()**  
+# - Alternatively, use **DATEPART()** for more flexibility.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# SQL Server provides multiple ways to extract components from a date column:
+# 
+# ---
+# 
+# ### 1. Get Day
+# - Use the **DAY()** function to get the day of the month (1–31).  
+# 
+# **Example:**  
+# ```sql
+# SELECT DAY(your_date_column) AS Day
+# FROM your_table;
+# ```
+# ### 2\. Get Month
+# 
+# -   Use the **MONTH()** function to get the month (1--12).
+# 
+# **Example:**
+# ```sql
+# SELECT MONTH(your_date_column) AS Month
+# FROM your_table;`
+# ```
+# * * * * *
+# 
+# ### 3\. Get Year
+# 
+# -   Use the **YEAR()** function to get the year.
+# 
+# **Example:**
+# ```sql
+# SELECT YEAR(your_date_column) AS Year
+# FROM your_table;`
+# ```
+# * * * * *
+# 
+# ### Using DATEPART()
+# 
+# -   DATEPART() provides more flexibility for different date parts.
+# 
+# **Example:**
+# ```sql
+# SELECT
+#     DATEPART(day, your_date_column) AS Day,
+#     DATEPART(month, your_date_column) AS Month,
+#     DATEPART(year, your_date_column) AS Year
+# FROM your_table;`
+# ```
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   **DAY(), MONTH(), YEAR()** → simple and easy to remember.
+# 
+# -   **DATEPART()** → versatile, use for **weekday, quarter, hour, minute**, etc.
+# 
+# -   Always make sure the column is of **DATE, DATETIME, or DATETIME2 type** to avoid errors.
+
+
+# MARKDOWN ********************
+
+# ## Question 19: How to check if a date is valid in SQL?
+# 
+# ### Short Answer
+# - Use **TRY_CAST()** or **TRY_CONVERT()** to attempt converting a string to a **DATE** type.  
+# - If conversion returns **NULL**, the date is invalid; otherwise, it is valid.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# SQL Server provides **safe functions** to check date validity:
+# 
+# 1. **TRY_CAST()**  
+#    - Attempts to cast a value to a specified data type.  
+#    - Returns **NULL** if the conversion fails.
+# 
+# **Example:**  
+# ```sql
+# DECLARE @dateString VARCHAR(20) = '2025-08-24';
+# 
+# IF TRY_CAST(@dateString AS DATE) IS NOT NULL
+# BEGIN
+#     PRINT 'Valid Date';
+# END
+# ELSE
+# BEGIN
+#     PRINT 'Invalid Date';
+# END
+# ```
+# 1.  **TRY_CONVERT()**
+# 
+#     -   Similar to TRY_CAST(), attempts conversion to a target type.
+# 
+#     -   Returns **NULL** if invalid.
+# 
+# **Example:**
+# ```sql
+# DECLARE @dateString VARCHAR(20) = '2025-08-24';
+# 
+# IF TRY_CONVERT(DATE, @dateString) IS NOT NULL
+# BEGIN
+#     PRINT 'Valid Date';
+# END
+# ELSE
+# BEGIN
+#     PRINT 'Invalid Date';
+# END
+# ```
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Use **TRY_CAST()** or **TRY_CONVERT()** when validating **user inputs** or **external data**.
+# 
+# -   Always check for **NULL** to safely identify invalid dates.
+# 
+# -   Avoid using direct CAST/CONVERT without error handling, as it will **throw an exception** for invalid dates.
+
+
+# CELL ********************
+
+# MAGIC %%sql
+# MAGIC 
+# MAGIC SELECT 
+# MAGIC     CASE 
+# MAGIC         WHEN TRY_CAST('2025-02-28' AS DATE) IS NOT NULL THEN 'Valid'
+# MAGIC         ELSE 'Invalid'
+# MAGIC     END AS result;
+
+
+# METADATA ********************
+
+# META {
+# META   "language": "sparksql",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# MARKDOWN ********************
+
+# ## Question 20: Difference between LEFT OUTER JOIN and INNER JOIN in SQL
+# 
+# ### Short Answer
+# - **INNER JOIN**: Returns only rows with **matching keys** in both tables.  
+# - **LEFT OUTER JOIN**: Returns **all rows from the left table**, with matching rows from the right table if available; otherwise, **NULL** for right table columns.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# Both **INNER JOIN** and **LEFT OUTER JOIN** are used to combine data from two or more tables, but the **result sets differ**.
+# 
+# ---
+# 
+# ### 1. INNER JOIN
+# - Returns rows where there is a **match in both tables**.  
+# - Filters out rows with no match in either table.
+# 
+# **Example:**  
+# ```sql
+# SELECT e.Emp_ID, e.Emp_Name, d.Dept_Name
+# FROM Employees e
+# INNER JOIN Departments d
+# ON e.Department_ID = d.Department_ID;
+# ```
+# *Result:* Only employees who have a valid department ID are returned.
+# 
+# ### 2\. LEFT OUTER JOIN
+# 
+# -   Returns **all rows from the left table** (`Employees`).
+# 
+# -   Returns matching rows from the right table (`Departments`).
+# 
+# -   If no match exists, the right table columns return **NULL**.
+# 
+# **Example:**
+# ```sql
+# SELECT e.Emp_ID, e.Emp_Name, d.Dept_Name
+# FROM Employees e
+# LEFT OUTER JOIN Departments d
+# ON e.Department_ID = d.Department_ID;`
+# ```
+# *Result:* All employees are returned.
+# 
+# -   Employees with a valid department → department name shown
+# 
+# -   Employees with no department → `NULL` in `Dept_Name` column
+# 
+# * * * * *
+# 
+# ### Key Differences
+# 
+# | Feature | INNER JOIN | LEFT OUTER JOIN |
+# | --- | --- | --- |
+# | Rows Returned | Only matching rows | All left table rows, match from right table if exists |
+# | Non-Matching Rows | Excluded | Included with NULLs for right table columns |
+# 
+# ### Interview Tip
+# 
+# -   Use **INNER JOIN** to get **only related records**.
+# 
+# -   Use **LEFT OUTER JOIN** to get **all records from left table**, even if no match exists in right table.
+# 
+# -   Visualize with a **Venn diagram**: INNER = intersection, LEFT OUTER = all left + intersection.
+
+
+# MARKDOWN ********************
+
+# ## Question 21: What is SELF JOIN in SQL?
+# 
+# ### Short Answer
+# - A **SELF JOIN** is a join in which a table is joined with **itself**.  
+# - Useful for comparing rows within the same table, such as **employees and managers**.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# A **SELF JOIN** allows you to query **relationships within the same table**.  
+# - The table is **aliased** into two instances to distinguish them.  
+# - Can be used with **INNER JOIN, LEFT JOIN, etc.**, depending on the requirement.
+# 
+# ---
+# 
+# ### Example: Employees and Managers
+# 
+# Assume an `Employees` table:
+# 
+# | Emp_ID | Emp_Name | Manager_ID |
+# |--------|----------|------------|
+# | 1      | John     | NULL       |
+# | 2      | Mary     | 1          |
+# | 3      | Bob      | 1          |
+# 
+# **Query:** Find employees and their managers:
+# 
+# ```sql
+# SELECT e.Emp_Name AS Employee, m.Emp_Name AS Manager
+# FROM Employees e
+# LEFT JOIN Employees m
+# ON e.Manager_ID = m.Emp_ID;
+# ```
+# **Result:**
+# 
+# | Employee | Manager |
+# | --- | --- |
+# | John | NULL |
+# | Mary | John |
+# | Bob | John |
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Always use **table aliases** to distinguish the same table instances.
+# 
+# -   Commonly used for **hierarchical data**, like employees, categories, or organizational structures.
+# 
+# -   Remember: SELF JOIN is **not a special join type**, just a table joining itself.
+
+
+# CELL ********************
+
+departments_data = [
+    (10, "IT"),
+    (20, "HR"),
+    (30, "Finance"),
+    (40, "Marketing")
+]
+
+departments_cols = ["department_id", "department_name"]
+
+df_departments = spark.createDataFrame(departments_data, departments_cols)
+df_departments.write.format("delta").mode("overwrite").saveAsTable("depts")
+df_departments.show()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+employees_data = [
+    (1, "John", 10),
+    (2, "Alice", 10),
+    (3, "Bob", 20),
+    (4, "Mary", None)   # Employee without department
+]
+
+employees_cols = ["employee_id", "employee_name", "department_id"]
+
+df_employees = spark.createDataFrame(employees_data, employees_cols)
+df_employees.write.format("delta").mode("overwrite").saveAsTable("emp")
+df_employees.show()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# MARKDOWN ********************
+
+# ## Question 22: Print all departments and number of employees in each department
+# 
+# ### Short Answer
+# - Use **LEFT OUTER JOIN** to include all departments.
+# - Use **COUNT()** to calculate the number of employees.
+# - Use **GROUP BY** to aggregate results department-wise.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# In a classical **Employee–Department** relationship:
+# - Each employee belongs to a department.
+# - Some departments may have **no employees**.
+# 
+# To display **all departments** along with the **number of employees**, we use:
+# - **LEFT OUTER JOIN** → keeps all departments
+# - **COUNT(employee_id)** → counts employees per department
+# - **GROUP BY** → groups records by department
+# 
+# ---
+# 
+# ### SQL Query
+# 
+# ```sql
+# SELECT
+#     d.department_name,
+#     COUNT(e.employee_id) AS no_of_emps
+# FROM departments d
+# LEFT OUTER JOIN employees e
+#     ON d.department_id = e.department_id
+# GROUP BY d.department_name;
+# ```
+# ### How It Works
+# 
+# -   Start from the **departments** table.
+# 
+# -   LEFT OUTER JOIN ensures every department appears, even without employees.
+# 
+# -   `COUNT(e.employee_id)` counts only non-NULL employee IDs.
+# 
+# -   `GROUP BY d.department_name` groups employees under each department.
+# 
+# * * * * *
+# 
+# ### Example Output
+# 
+# | department_name | no_of_emps |
+# | --- | --- |
+# | IT | 5 |
+# | HR | 2 |
+# | Finance | 0 |
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Always use **LEFT OUTER JOIN** when the question says **"print all departments"**.
+# 
+# -   `COUNT(column)` ignores NULLs → perfect for counting related records.
+# 
+# -   INNER JOIN ❌ will miss departments with zero employees.
+
+
+# CELL ********************
+
+# MAGIC %%sql
+# MAGIC SELECT
+# MAGIC     d.department_name, COUNT(e.employee_id) AS no_of_emps
+# MAGIC FROM depts AS d
+# MAGIC LEFT JOIN emp AS e
+# MAGIC     ON d.department_id = e.department_id
+# MAGIC GROUP BY d.department_name
+
+# METADATA ********************
+
+# META {
+# META   "language": "sparksql",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# MARKDOWN ********************
+
+# ## Question 23: Difference between COUNT(*), COUNT(1), and COUNT(column_name) in SQL
+# 
+# ### Short Answer
+# - **COUNT(*)**: Counts all rows, including rows with NULL values.
+# - **COUNT(1)**: Counts all rows, same behavior as COUNT(*).
+# - **COUNT(column_name)**: Counts only **non-NULL values** in the specified column.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# The **COUNT()** aggregate function is used to count rows or values in SQL, but its behavior depends on how it is used.
+# 
+# ---
+# 
+# ### 1. COUNT(*)
+# - Counts the **total number of rows** returned by the query.
+# - Includes rows even if all columns contain **NULL values**.
+# - Does not evaluate individual column values.
+# 
+# **Example:**  
+# ```sql
+# SELECT COUNT(*) AS total_rows
+# FROM employees;
+# ```
+# ### 2\. COUNT(1)
+# 
+# -   Counts the **total number of rows**, same as COUNT(*).
+# 
+# -   Uses a constant value (`1`) for each row.
+# 
+# -   Performance and behavior are **identical to COUNT(*)** in modern SQL engines.
+# 
+# **Example:**
+# ```sql
+# SELECT COUNT(1) AS total_rows
+# FROM employees;
+# ```
+# * * * * *
+# 
+# ### 3\. COUNT(column_name)
+# 
+# -   Counts only **non-NULL values** in the specified column.
+# 
+# -   Rows where the column value is NULL are **excluded**.
+# 
+# **Example:**
+# ```sql
+# SELECT COUNT(employee_id) AS non_null_employee_ids
+# FROM employees;
+# ```
+# * * * * *
+# 
+# ### Key Differences
+# 
+# | Function | What It Counts | NULL Handling |
+# | --- | --- | --- |
+# | COUNT(*) | All rows | NULLs included |
+# | COUNT(1) | All rows | NULLs included |
+# | COUNT(column_name) | Non-NULL column values | NULLs excluded |
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   **COUNT(*) and COUNT(1) behave the same** --- choose COUNT(*) for clarity.
+# 
+# -   Use **COUNT(column_name)** when you need to count actual values.
+# 
+# -   Never say COUNT(1) ignores NULLs --- that's a **common interview trap**.
+
+
+# MARKDOWN ********************
+
+# ## Question 24: What is Database Statistics and how does it affect query performance?
+# 
+# ### Short Answer
+# - **Database statistics** store information about data distribution in tables and indexes.
+# - The **query optimizer** uses statistics to choose the most efficient execution plan.
+# - Outdated statistics can cause **poor query performance**.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# Database statistics are **metadata** maintained by the DBMS that describe:
+# - Number of rows in a table
+# - Data distribution in columns
+# - Index selectivity
+# - Cardinality estimates
+# 
+# The **query optimizer** relies on these statistics to decide **how a query should be executed**.
+# 
+# ---
+# 
+# ### How Database Statistics Affect Query Performance
+# 
+# ---
+# 
+# ### 1. Query Plan Selection
+# - The optimizer estimates how many rows each step of a query will return.
+# - It compares multiple execution plans and chooses the **lowest-cost plan**.
+# - Accurate statistics → correct estimates → faster execution.
+# 
+# ---
+# 
+# ### 2. Index Selection
+# - Statistics help determine **which index is most selective**.
+# - A selective index reduces row scans and improves performance.
+# 
+# ---
+# 
+# ### 3. Join Order Optimization
+# - In multi-table queries, the optimizer decides **join order**.
+# - Statistics on table size and data distribution guide this decision.
+# - Wrong join order = unnecessary scans = slow queries.
+# 
+# ---
+# 
+# ### 4. Predicate Evaluation
+# - Statistics estimate how selective conditions in the **WHERE clause** are.
+# - Helps optimizer apply filters as early as possible.
+# 
+# ---
+# 
+# ### 5. Memory and Resource Allocation
+# - Statistics help estimate memory and CPU needs.
+# - Allows efficient allocation of resources during query execution.
+# 
+# ---
+# 
+# ### Updating Statistics
+# 
+# After bulk operations like **data imports**, statistics should be updated:
+# 
+# ```sql
+# UPDATE STATISTICS table_name;
+# ```
+# Or for a specific index/statistics object:
+# ```sql
+# UPDATE STATISTICS table_name index_or_statistics_name;
+# ```
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Slow query + no code change → **check statistics first**.
+# 
+# -   Always update statistics after **bulk inserts, updates, or deletes**.
+# 
+# -   Outdated statistics = wrong execution plan = poor performance.
+
+
+# MARKDOWN ********************
+
+# ## Question 25: Does the order of columns matter in a compound index?
+# 
+# ### Short Answer
+# - **Yes**, the order of columns in a compound index matters.
+# - It affects how efficiently the index is used by SQL queries.
+# - Index usage follows the **left-most prefix rule**.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# A **compound (composite) index** is an index created on multiple columns.  
+# The **order of columns** determines how the index is structured and used by the query optimizer.
+# 
+# ---
+# 
+# ### Index Order Example
+# 
+# Consider two possible indexes:
+# - **(book_id, active)**
+# - **(active, book_id)**
+# 
+# ---
+# 
+# ### 1. Index on (book_id, active)
+# - Best for queries that filter by **book_id**
+# - Also effective when filtering by **book_id AND active**
+# - Not efficient for filtering by **active alone**
+# 
+# **Example Query:**  
+# ```sql
+# SELECT *
+# FROM books
+# WHERE book_id = 101 AND active = 1;
+# ```
+# ### 2\. Index on (active, book_id)
+# 
+# -   Best for queries that filter by **active**
+# 
+# -   Also effective when filtering by **active AND book_id**
+# 
+# -   Not efficient for filtering by **book_id alone**
+# 
+# **Example Query:**
+# ```sql
+# SELECT *
+# FROM books
+# WHERE active = 1 AND book_id = 101;`
+# ```
+# * * * * *
+# 
+# ### Left-Most Prefix Rule
+# 
+# -   An index is used efficiently **only if the query uses the leading column(s)**.
+# 
+# -   `(book_id, active)` can be used for:
+# 
+#     -   `book_id`
+# 
+#     -   `book_id AND active`
+# 
+# -   `(active, book_id)` can be used for:
+# 
+#     -   `active`
+# 
+#     -   `active AND book_id`
+# 
+# * * * * *
+# 
+# ### Design Considerations
+# 
+# -   Place the **most selective or most frequently filtered column first**.
+# 
+# -   Avoid creating too many indexes:
+# 
+#     -   Increases storage
+# 
+#     -   Slows down INSERT, UPDATE, DELETE operations
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Always mention the **left-most prefix rule**.
+# 
+# -   Index column order should match **real query patterns**.
+# 
+# -   More indexes ≠ better performance --- balance is key.
+
+
+# MARKDOWN ********************
+
+# ## Question 26: What are `_` and `%` used for in SQL?
+# 
+# ### Short Answer
+# - `_` and `%` are **wildcards** used with the **LIKE operator**.
+# - `_` matches **exactly one character**.
+# - `%` matches **any number of characters (including zero)**.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# In SQL, the `LIKE` operator is used for **pattern matching** in string
+# comparisons. The `_` (underscore) and `%` (percent sign) are special
+# wildcard characters that help define flexible search patterns.
+# 
+# ---
+# 
+# ### 1. Underscore (`_`) Wildcard
+# - Matches **exactly one character**
+# - Position-specific
+# - Useful when the length of the string matters
+# 
+# **Example:**  
+# Find names starting with `J` and having exactly 4 characters:
+# ```sql
+# SELECT *
+# FROM employees
+# WHERE name LIKE 'J___';
+# ```
+# This matches:
+# 
+# -   John
+# 
+# -   Jack
+# 
+# But not:
+# 
+# -   James
+# 
+# -   Jo
+# 
+# * * * * *
+# 
+# ### 2\. Percent (`%`) Wildcard
+# 
+# -   Matches **zero or more characters**
+# 
+# -   Can be used at the beginning, middle, or end of a pattern
+# 
+# **Example:**\
+# Find names starting with `A`:
+# ```sql
+# SELECT *
+# FROM employees
+# WHERE name LIKE 'A%';
+# ```
+# **Example:**\
+# Find names containing the letter `n` anywhere:
+# ```sql
+# SELECT *
+# FROM employees
+# WHERE name LIKE '%n%';`
+# ```
+# * * * * *
+# 
+# ### Case Sensitivity Note
+# 
+# -   `LIKE` is **case-insensitive by default in SQL Server** (based on collation).
+# 
+# -   For case-sensitive searches:
+# 
+#     -   Use a case-sensitive collation, or
+# 
+#     -   Apply `LOWER()` / `UPPER()` functions.
+# 
+# * * * * *
+# 
+# ### Summary Table
+# 
+# | Wildcard | Meaning | Example Pattern |
+# | --- | --- | --- |
+# | `_` | Exactly one character | `J___` |
+# | `%` | Zero or more characters | `A%`, `%n%` |
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Mention that `_` is **fixed-length matching**
+# 
+# -   `%` is **variable-length matching**
+# 
+# -   Both are used only with the `LIKE` operator
+
+
+# MARKDOWN ********************
+
+# ## Question 27: How do you ensure that a particular SQL query uses a specific index?
+# 
+# ### Short Answer
+# You can **suggest or influence** index usage using **index hints**, but the
+# query optimizer ultimately decides whether to use the index.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# In SQL, you **cannot fully force** a query to use a specific index because
+# the **query optimizer** is responsible for selecting the most efficient
+# execution plan based on cost, statistics, and data distribution.
+# 
+# However, you can **influence** the optimizer to prefer a particular index
+# by following best practices.
+# 
+# ---
+# 
+# ### Ways to Influence Index Usage
+# 
+# #### 1. Create the Right Index
+# Ensure indexes exist on columns used in:
+# - `WHERE`
+# - `JOIN`
+# - `ORDER BY`
+# - `GROUP BY`
+# 
+# A well-designed index significantly increases the likelihood of being used.
+# 
+# ---
+# 
+# #### 2. Keep Statistics Up-to-Date
+# The optimizer relies on statistics to estimate row counts and costs.
+# 
+# ```sql
+# UPDATE STATISTICS table_name;
+# ```
+# Outdated statistics can cause poor index selection or full table scans.
+# 
+# * * * * *
+# 
+# #### 3\. Use Index Hints (Last Resort)
+# 
+# Some databases allow **index hints** to suggest a specific index.
+# 
+# **SQL Server Example:**
+# ```sql
+# SELECT *
+# FROM employees WITH (INDEX(idx_employee_dept))
+# WHERE department_id = 10;`
+# ```
+# ⚠️ Use hints carefully --- they can:
+# 
+# -   Reduce plan flexibility
+# 
+# -   Break performance if data distribution changes
+# 
+# * * * * *
+# 
+# #### 4\. Rewrite the Query
+# 
+# Small changes in query structure can influence index usage:
+# 
+# -   Avoid functions on indexed columns
+# 
+# -   Avoid implicit data type conversions
+# 
+# -   Write sargable (search-argument-able) conditions
+# 
+# Bad:
+# ```sql
+# WHERE YEAR(order_date) = 2024
+# ```
+# Good:
+# ```sql
+# WHERE order_date >= '2024-01-01'
+#   AND order_date < '2025-01-01'
+# ```
+# * * * * *
+# 
+# #### 5\. Use Covering Indexes
+# 
+# A covering index includes **all columns required by the query**, so the\
+# database does not need to access the base table.
+# ```sql
+# CREATE INDEX idx_cover
+# ON orders(customer_id)
+# INCLUDE(order_date, amount);`
+# ```
+# * * * * *
+# 
+# #### 6\. Avoid Too Many Indexes
+# 
+# Too many indexes:
+# 
+# -   Increase storage
+# 
+# -   Slow down INSERT/UPDATE/DELETE
+# 
+# -   Can confuse the optimizer
+# 
+# Remove unused or redundant indexes.
+# 
+# * * * * *
+# 
+# ### Important Note
+# 
+# Even with hints, the optimizer **may ignore** the suggested index if it\
+# determines another execution plan is cheaper.
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Say: *"You cannot force index usage, but you can influence it."*
+# 
+# -   Emphasize:
+# 
+#     -   Proper index design
+# 
+#     -   Updated statistics
+# 
+#     -   Index hints as **last resort**
+
+
+# MARKDOWN ********************
+
+# ## Question 28: In SQL Server, which is fastest and slowest among Index Seek, Index Scan, and Table Scan?
+# 
+# ### Short Answer
+# In general:
+# **Index Seek is the fastest**, followed by **Index Scan**, and
+# **Table Scan is the slowest**.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# In SQL Server, the query optimizer decides how to access data based on
+# statistics, indexes, and estimated cost. The performance of a query largely
+# depends on whether it uses an Index Seek, Index Scan, or Table Scan.
+# 
+# ---
+# 
+# ### 1. Index Seek (Fastest)
+# - An **Index Seek** directly navigates to the required rows using an index.
+# - It retrieves only the rows that match the search condition.
+# - Best suited for **highly selective queries**.
+# 
+# Example:
+# ```sql
+# SELECT *
+# FROM employees
+# WHERE employee_id = 101;
+# ```
+# If `employee_id` is indexed, SQL Server can quickly locate the row using\
+# an Index Seek.
+# 
+# * * * * *
+# 
+# ### 2\. Index Scan (Medium)
+# 
+# -   An **Index Scan** reads all rows (or a range of rows) from an index.
+# 
+# -   Faster than a Table Scan because indexes are usually smaller than tables.
+# 
+# -   Occurs when:
+# 
+#     -   The query returns many rows
+# 
+#     -   No selective filter exists
+# 
+# Example:
+# ```sql
+# SELECT *
+# FROM employees
+# WHERE department_id > 0;
+# ```
+# This may scan a large portion of the index.
+# 
+# * * * * *
+# 
+# ### 3\. Table Scan (Slowest)
+# 
+# -   A **Table Scan** reads every row in the table.
+# 
+# -   SQL Server checks each row to see if it matches the condition.
+# 
+# -   Very expensive for large tables.
+# 
+# Occurs when:
+# 
+# -   No suitable index exists
+# 
+# -   Statistics are outdated
+# 
+# -   Query is not sargable
+# 
+# Example:
+# ```sql
+# SELECT *
+# FROM employees
+# WHERE UPPER(name) = 'JOHN';
+# ```
+# Using a function on the column can prevent index usage, leading to a table scan.
+# 
+# * * * * *
+# 
+# ### Performance Order (Fast → Slow)
+# 
+# | Operation | Performance |
+# | --- | --- |
+# | Index Seek | Fastest |
+# | Index Scan | Medium |
+# | Table Scan | Slowest |
+# 
+# * * * * *
+# 
+# ### How to Check Which One Is Used
+# 
+# You can inspect the execution plan:
+# ```sql
+# SET STATISTICS PROFILE ON;
+# -- or
+# SET STATISTICS IO ON;
+# ```
+# Or simply view the **Actual Execution Plan** in SQL Server Management Studio.
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Say: **"Index Seek is ideal, Index Scan is acceptable, Table Scan should be avoided for large tables."**
+# 
+# -   Emphasize:
+# 
+#     -   Proper indexing
+# 
+#     -   Updated statistics
+# 
+#     -   Writing sargable queries
+# 
+# * * * * *
+# 
+# ### Key Takeaway
+# 
+# Good indexing + good query design = **Index Seeks**\
+# Poor indexing or bad query design = **Table Scans**
+
+
+# MARKDOWN ********************
+
+# ## Question 29: What does NULL = NULL return in SQL?
+# 
+# ### Short Answer
+# - `NULL = NULL` returns **NULL**, not TRUE.
+# - SQL uses **three-valued logic**: TRUE, FALSE, NULL (UNKNOWN).
+# - Comparisons involving NULL cannot be evaluated with standard operators.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# - **NULL** represents an unknown or missing value.
+# - SQL cannot determine equality or inequality between two unknown values.
+# - Hence, `NULL = NULL` evaluates to **NULL** (UNKNOWN) rather than TRUE.
+# - Similarly, `NULL <> NULL` also evaluates to NULL.
+# 
+# ---
+# 
+# ### Correct Way to Check for NULL Values
+# - **IS NULL**: Checks if a value is NULL.
+# - **IS NOT NULL**: Checks if a value is not NULL.
+# 
+# **Example:**
+# ```sql
+# SELECT *
+# FROM employees
+# WHERE department_id IS NULL;
+# ```
+# This query correctly retrieves all rows where `department_id` is NULL.
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Never use `=` or `<>` to check for NULL values.
+# 
+# -   Always use **`IS NULL`** or **`IS NOT NULL`** for proper NULL handling.
+# 
+# -   Understand three-valued logic to avoid logical errors in queries.
+
+
+# MARKDOWN ********************
+
+# ## Question 30: Write SQL query to find all rows where EMP_NAME is NULL
+# 
+# ### Short Answer
+# - Use the **`IS NULL`** operator to check for NULL values.
+# - `=` operator **does not work** for NULL comparisons.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# - **NULL** represents unknown or missing data.
+# - Standard comparison operators like `=` or `<>` cannot detect NULL values.
+# - **`IS NULL`** is the correct method to find rows with NULL in a column.
+# - **`IS NOT NULL`** is used to find rows with actual values (non-NULL).
+# 
+# ---
+# 
+# ### Example SQL Query
+# ```sql
+# SELECT *
+# FROM employees
+# WHERE EMP_NAME IS NULL;
+# ```
+# This query retrieves all rows where the `EMP_NAME` column has no value.
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Always use **`IS NULL`** or **`IS NOT NULL`** for NULL checks.
+# 
+# -   Never attempt `EMP_NAME = NULL` or `EMP_NAME <> NULL`.
+# 
+# -   Understanding NULL handling is crucial for avoiding logical errors in queries.
+
+# MARKDOWN ********************
+
+# ## Question 31: What is the temp table?
+# 
+# ### Short Answer
+# - A **temp table** (temporary table) exists only during the **current database session**.
+# - Once the session ends, the table and its data are automatically dropped.
+# - Unlike a view, a temp table can be used like a **regular table** throughout the session.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# - Temporary tables are used to store **intermediate results** or **temporary data** during query execution or stored procedures.
+# - They help break complex operations into **manageable steps** and improve performance.
+# 
+# ---
+# 
+# ### Types of Temporary Tables
+# 
+# 1. **Local Temporary Table (`#temp_table`)**
+# - Visible only within the session that created it.
+# - Automatically dropped when the session ends.
+# 
+# 2. **Global Temporary Table (`##temp_table`)**
+# - Visible across sessions in the same database.
+# - Dropped automatically when the last session using it ends.
+# 
+# ---
+# 
+# ### Example SQL Queries
+# 
+# **Create a Local Temp Table**
+# ```sql
+# CREATE TABLE #TempEmployees (
+#     Emp_ID INT,
+#     Emp_Name VARCHAR(50),
+#     Dept VARCHAR(50)
+# );
+# 
+# INSERT INTO #TempEmployees VALUES (1, 'John', 'IT');
+# SELECT * FROM #TempEmployees;
+# ```
+# **Create a Global Temp Table**
+# ```sql
+# CREATE TABLE ##TempDepartments (
+#     Dept_ID INT,
+#     Dept_Name VARCHAR(50)
+# );
+# 
+# INSERT INTO ##TempDepartments VALUES (101, 'IT');
+# SELECT * FROM ##TempDepartments;
+# ```
+# **Drop Temp Table (optional)**
+# ```sql
+# DROP TABLE #TempEmployees;
+# DROP TABLE ##TempDepartments;
+# ```
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   **Local temp tables (`#`)** → session-specific, automatically dropped.
+# 
+# -   **Global temp tables (`##`)** → shared across sessions, dropped after last reference.
+# 
+# -   Use temp tables for **intermediate results**, not for long-term storage.
+
+
+# MARKDOWN ********************
+
+# ## Question 32: What is the fastest way to empty or clear a table?
+# 
+# ### Short Answer
+# - Use the **TRUNCATE TABLE** command to quickly empty a table.
+# - Faster than DELETE because it doesn't log each deleted row.
+# - Cannot be rolled back, so use with caution.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# - **TRUNCATE TABLE** removes all rows efficiently and quickly.
+# - It deallocates the data pages directly and logs minimal information.
+# - Typically faster than DELETE, especially for large tables.
+# 
+# **Syntax:**
+# ```sql
+# TRUNCATE TABLE table_name;
+# ```
+# Replace `table_name` with your table's name.
+# 
+# * * * * *
+# 
+# ### Advantages of TRUNCATE TABLE
+# 
+# 1.  **Speed**: Directly deallocates pages instead of deleting row by row.
+# 
+# 2.  **Minimal Logging**: Logs only page deallocations, saving log space.
+# 
+# 3.  **No Rollback**: Cannot be rolled back; operation is immediate.
+# 
+# * * * * *
+# 
+# ### Considerations
+# 
+# -   **Cannot use with foreign keys**: Tables referenced by foreign keys cannot be truncated.
+# 
+# -   **Resets identity columns**: Identity seeds are reset to their original starting value.
+# 
+# -   **Requires permissions**: Only users with the right privileges can truncate.
+# 
+# * * * * *
+# 
+# ### Example
+# ```sql
+# -- Quickly empty the Employees table
+# TRUNCATE TABLE Employees;
+# ```
+# **Comparison with DELETE**
+# 
+# -   `DELETE FROM Employees;` → Slower, logs each row, can rollback.
+# 
+# -   `TRUNCATE TABLE Employees;` → Fast, minimal logging, cannot rollback.
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Use **TRUNCATE** for quick clearing of large tables.
+# 
+# -   Use **DELETE** if you need rollback or have foreign key dependencies.
+
+
+# MARKDOWN ********************
+
+# ## Question 33: What is an identity column in SQL Server? How do you return an identity value?
+# 
+# ### Short Answer
+# - An **identity column** automatically generates unique numeric values for each new row.
+# - Often used as a **primary key**.
+# - Defined using `IDENTITY(seed, increment)`.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# - **Identity Column** automatically assigns unique, sequential values.
+# - Syntax for creating an identity column:
+# ```sql
+# CREATE TABLE Employees (
+#     Emp_ID INT IDENTITY(1,1) PRIMARY KEY,
+#     Emp_Name VARCHAR(50),
+#     Dept VARCHAR(50)
+# );
+# ```
+# -   Here, `Emp_ID` starts at 1 and increments by 1 for each new row.
+# 
+# * * * * *
+# 
+# ### Returning Identity Values
+# 
+# 1.  **@@IDENTITY**
+# ```sql
+# INSERT INTO Employees (Emp_Name, Dept)
+# VALUES ('John', 'IT');
+# 
+# SELECT @@IDENTITY AS LastIdentity;
+# ```
+# -   Returns the last identity value generated in the session.
+# 
+# -   Be cautious: triggers may affect the value.
+# 
+# 2.  **SCOPE_IDENTITY()**
+# ```sql
+# INSERT INTO Employees (Emp_Name, Dept)
+# VALUES ('Mary', 'HR');
+# 
+# SELECT SCOPE_IDENTITY() AS LastIdentity;
+# ```
+# -   Returns the last identity value generated **within the current scope**.
+# 
+# -   Safer than `@@IDENTITY`.
+# 
+# 3.  **OUTPUT Clause**
+# ```sql
+# INSERT INTO Employees (Emp_Name, Dept)
+# OUTPUT INSERTED.Emp_ID
+# VALUES ('Alice', 'Finance');
+# ```
+# -   Returns the identity value(s) directly from the `INSERT` statement.
+# 
+# -   Useful when inserting multiple rows.
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Use `SCOPE_IDENTITY()` for safe retrieval of identity values after an insert.
+# 
+# -   Use the `OUTPUT` clause if you need immediate feedback or are inserting multiple rows.
+
+
+# MARKDOWN ********************
+
+# ## Question 34: How do you return an identity value from a table with a trigger?
+# 
+# ### Short Answer
+# - In SQL Server, you can use functions like `@@IDENTITY` or `SCOPE_IDENTITY()` to return identity values.
+# - **Caution:** `@@IDENTITY` may return identity values generated by triggers, not just your insert.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# - **Triggers** can insert rows into other tables with identity columns.
+# - `@@IDENTITY` returns the last identity in the **current session**, including triggers.
+# - `SCOPE_IDENTITY()` returns the last identity in the **current scope**, ignoring triggers.
+# - `OUTPUT` clause can also safely return inserted identity values.
+# 
+# ---
+# ### Interview Tip
+# 
+# -   Prefer `SCOPE_IDENTITY()` over `@@IDENTITY` when triggers are present.
+# 
+# -   The `OUTPUT` clause is ideal for retrieving identity values safely, especially when inserting multiple rows.
+
+# MARKDOWN ********************
+
+# ## Question 35: How do you return a value from a stored procedure?
+# 
+# ### Short Answer
+# - In SQL Server, you can return values from a stored procedure using:
+#   - The **RETURN** statement
+#   - **OUTPUT parameters**
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# SQL Server provides two ways to return values from a stored procedure, and each serves a different purpose.
+# 
+# ---
+# 
+# ### 1. Using the RETURN Statement
+# - Used to return **only one integer value**.
+# - Commonly used to indicate **execution status**.
+# - By convention:
+#   - `0` → Success
+#   - Non-zero → Error or warning
+# - Cannot return strings or multiple values.
+# 
+# **Example:**  
+# ```sql
+# CREATE PROCEDURE GetEmployeeCount
+# AS
+# BEGIN
+#     DECLARE @EmployeeCount INT;
+#     SELECT @EmployeeCount = COUNT(*) FROM Employees;
+#     RETURN @EmployeeCount;
+# END;
+# ```
+# **Calling the Procedure:**
+# ```sql
+# DECLARE @Result INT;
+# EXEC @Result = GetEmployeeCount;
+# PRINT @Result;
+# ```
+# * * * * *
+# 
+# ### 2\. Using OUTPUT Parameters
+# 
+# -   Used to return **multiple values**.
+# 
+# -   Can return **any data type**.
+# 
+# -   Commonly used for returning query results or calculated values.
+# 
+# **Example:**
+# ```sql
+# CREATE PROCEDURE GetEmployeeDetails
+#     @EmployeeID INT,
+#     @FirstName NVARCHAR(50) OUTPUT,
+#     @Title NVARCHAR(50) OUTPUT
+# AS
+# BEGIN
+#     SELECT
+#         @FirstName = FirstName,
+#         @Title = Title
+#     FROM Employees
+#     WHERE EmployeeID = @EmployeeID;
+# END;
+# ```
+# **Calling the Procedure:**
+# ```sql
+# DECLARE @Name NVARCHAR(50), @Position NVARCHAR(50);
+# 
+# EXEC GetEmployeeDetails
+#     @EmployeeID = 1,
+#     @FirstName = @Name OUTPUT,
+#     @Title = @Position OUTPUT;
+# 
+# PRINT @Name;
+# PRINT @Position;
+# ```
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   **RETURN** → single integer → status code
+# 
+# -   **OUTPUT parameters** → multiple values → real data
+# 
+# -   Prefer **OUTPUT parameters** for practical, production-level stored procedures.
+
+
+# MARKDOWN ********************
+
+# ## Question 36: How do you return a VARCHAR value from a stored procedure?
+# 
+# ### Short Answer
+# - A stored procedure cannot return a VARCHAR value using the **RETURN** statement.
+# - To return a VARCHAR value, you must use an **OUTPUT parameter**.
+# 
+# ---
+# 
+# ### Detailed Explanation
+# 
+# In SQL Server, the **RETURN** statement can only return an **integer value**.  
+# To return a **VARCHAR or any non-integer data type**, an **OUTPUT parameter** must be used.
+# 
+# OUTPUT parameters allow stored procedures to pass values back to the calling program and support all data types, including VARCHAR.
+# 
+# ---
+# 
+# ### Using OUTPUT Parameter to Return VARCHAR
+# 
+# **Stored Procedure:**  
+# ```sql
+# CREATE PROCEDURE FetchLastName
+#     @EmployeeID INT,
+#     @LastName VARCHAR(50) OUTPUT
+# AS
+# BEGIN
+#     SELECT @LastName = LastName
+#     FROM [Northwind].dbo.Employees
+#     WHERE EmployeeID = @EmployeeID;
+# END;
+# ```
+# **Calling the Stored Procedure:**
+# ```sql
+# DECLARE @Name VARCHAR(50);
+# 
+# EXEC FetchLastName
+#     @EmployeeID = 4,
+#     @LastName = @Name OUTPUT;
+# 
+# PRINT @Name;
+# ```
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   **RETURN** → Only integer values (status codes)
+# 
+# -   **OUTPUT parameters** → Strings, dates, multiple values
+# 
+# -   To return a **VARCHAR**, always use an **OUTPUT parameter**
+
+
+# MARKDOWN ********************
+
+# ## Question 37: If you have a column that will only have values between 1 and 250, what data type will you use?
+# 
+# ### Answer
+# If you are using **SQL Server**, the best data type to use is **TINYINT**.
+# 
+# ---
+# 
+# ### Explanation
+# 
+# The **TINYINT** data type in SQL Server:
+# - Stores values from **0 to 255**
+# - Uses **1 byte of storage**
+# - Is ideal for small numeric ranges
+# 
+# Since the column values are guaranteed to be between **1 and 250**, **TINYINT** is the most efficient and appropriate choice.
+# 
+# ---
+# 
+# ### Why This Question Is Asked in Interviews
+# 
+# This question checks:
+# - Knowledge of SQL Server data types
+# - Ability to choose the most efficient data type
+# - Awareness of storage optimization
+# 
+# Your goal should always be to:
+# - Choose the **smallest data type** that satisfies the requirement
+# - Consider whether the range might change in the future
+# 
+# ---
+# 
+# ### Comparison
+# 
+# | Data Type | Range | Storage |
+# |----------|-------|---------|
+# | TINYINT  | 0 to 255 | 1 byte |
+# | SMALLINT | -32,768 to 32,767 | 2 bytes |
+# | INT      | -2B to +2B | 4 bytes |
+# 
+# ---
+# 
+# ### Final Verdict
+# ✔ **TINYINT** is the correct and optimal choice for values between **1 and 250**
+
+
+# MARKDOWN ********************
+
+# ## Question 38: Difference between LEFT and RIGHT OUTER JOIN in SQL?
+# 
+# ### Answer
+# Both **LEFT OUTER JOIN** and **RIGHT OUTER JOIN** are outer joins that return
+# matching and non-matching rows, but they differ in which table’s rows are
+# fully included.
+# 
+# ---
+# 
+# ### LEFT OUTER JOIN
+# - Returns **all rows from the LEFT table**
+# - Returns **only matching rows from the RIGHT table**
+# - If no match exists, columns from the right table contain **NULL**
+# 
+# #### Example
+# ```sql
+# SELECT *
+# FROM Employees E
+# LEFT JOIN Departments D
+# ON E.DeptID = D.DeptID;
+# ```
+# ### RIGHT OUTER JOIN
+# 
+# -   Returns **all rows from the RIGHT table**
+# 
+# -   Returns **only matching rows from the LEFT table**
+# 
+# -   If no match exists, columns from the left table contain **NULL**
+# 
+# #### Example
+# ```sql
+# SELECT *
+# FROM Employees E
+# RIGHT JOIN Departments D
+# ON E.DeptID = D.DeptID;
+# ```
+# * * * * *
+# 
+# ### Key Difference Summary
+# 
+# | Feature | LEFT OUTER JOIN | RIGHT OUTER JOIN |
+# | --- | --- | --- |
+# | All rows returned from | Left table | Right table |
+# | Matching rows from | Right table | Left table |
+# | Non-matching side shows | NULLs on right | NULLs on left |
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# ✔ **LEFT JOIN is preferred** in most real-world queries\
+# ✔ Any `RIGHT JOIN` can be rewritten as a `LEFT JOIN` by swapping table positions
+# 
+# * * * * *
+# 
+# ### Final Verdict
+# 
+# -   Use **LEFT OUTER JOIN** when you want all records from the left table
+# 
+# -   Use **RIGHT OUTER JOIN** when you want all records from the right table
+
+
+# MARKDOWN ********************
+
+# ## Question 39: Can you write an SQL query to select all last names that start with 'T'?
+# 
+# ### Answer
+# You can use the **LIKE** operator with a wildcard to filter values that start
+# with a specific character.
+# 
+# ### SQL Query
+# ```sql
+# SELECT LastName
+# FROM Employees
+# WHERE LastName LIKE 'T%';
+# ```
+# ### Explanation
+# 
+# -   The `SELECT` statement retrieves the **LastName** column from the\
+#     **Employees** table.
+# 
+# -   The `WHERE` clause filters rows where **LastName** starts with the\
+#     letter **'T'**.
+# 
+# -   The `%` wildcard represents **zero or more characters** after `T`.
+# 
+# ### Result
+# 
+# This query returns **all last names that begin with the letter 'T'**.
+
+# MARKDOWN ********************
+
+# # Question 40  
+# ## How would you select all rows where the date is 20231002?
+# 
+# ### Short Answer
+# You can select rows using a `WHERE` clause by comparing the date column
+# with the required date value.
+# 
+# ---
+# 
+# ### SQL Query (Recommended – DATE column)
+# 
+# ```sql
+# SELECT *
+# FROM your_table
+# WHERE date_column = '2023-10-02';
+# ```
+# ### Explanation
+# 
+# -   Replace **`your_table`** with the actual table name.
+# 
+# -   Replace **`date_column`** with the column that stores date values.
+# 
+# -   `'2023-10-02'` is the standard **ISO date format (YYYY-MM-DD)** and is\
+#     recommended for SQL Server and most databases.
+# 
+# * * * * *
+# 
+# ### Important Interview Tip ⚠️
+# 
+# If the column is of type **DATETIME** (contains time part), the above query\
+# may not return results because the time value will not match exactly.
+# 
+# In that case, use a date range:
+# ```sql
+# SELECT *
+# FROM your_table
+# WHERE date_column >= '2023-10-02'
+#   AND date_column < '2023-10-03';
+# ```
+# * * * * *
+# 
+# ### Key Takeaways
+# 
+# -   Always use **ISO date format (`YYYY-MM-DD`)**
+# 
+# -   Be careful with **DATE vs DATETIME**
+# 
+# -   Use a **date range** when time is present to avoid missing records
+
+
 # CELL ********************
 
 
