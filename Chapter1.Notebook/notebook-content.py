@@ -3189,12 +3189,1132 @@ df_employees.show()
 # -   Use a **date range** when time is present to avoid missing records
 
 
-# CELL ********************
+# MARKDOWN ********************
+
+# # Question 41  
+# ## What is the difference between a local and global temporary table in SQL Server?
+# 
+# ### Short Answer
+# - **Local Temporary Table**: Prefixed with a single `#`, visible only within the session that created it.  
+# - **Global Temporary Table**: Prefixed with `##`, visible across all sessions in the database.
+# 
+# ---
+# 
+# ### Long Answer
+# 
+# In SQL Server, **temporary tables** are used to store intermediate or temporary data.  
+# They come in **two types**: local and global, with differences in scope and lifespan.
+# 
+# ---
+# 
+# ### 1. Local Temporary Table
+# - Created with a **single hash (#)** prefix: `#temp_table`
+# - Scope: **Visible only in the session (connection) that created it**
+# - Lifespan: **Automatically dropped** when the session ends or explicitly dropped
+# - Use Case: Temporary data storage within **stored procedures**, **functions**, or a single user session
+# 
+# ```sql
+# -- Example of Local Temp Table
+# CREATE TABLE #LocalTemp(
+#     ID INT,
+#     Name NVARCHAR(50)
+# );
+# 
+# INSERT INTO #LocalTemp VALUES (1, 'John');
+# SELECT * FROM #LocalTemp;
+# 
+# -- Table will be automatically dropped when session ends
+# ```
+# ### 2\. Global Temporary Table
+# 
+# -   Created with **double hash (##)** prefix: `##GlobalTemp`
+# 
+# -   Scope: **Visible across multiple sessions** in the same database
+# 
+# -   Lifespan: **Dropped when the last session referencing it closes** or explicitly dropped
+# 
+# -   Use Case: Sharing temporary data between **different sessions or connections**
+# ```sql
+# -- Example of Global Temp Table
+# CREATE TABLE ##GlobalTemp(
+#     ID INT,
+#     Name NVARCHAR(50)
+# );
+# 
+# INSERT INTO ##GlobalTemp VALUES (1, 'Mary');
+# SELECT * FROM ##GlobalTemp;
+# 
+# -- Table persists until the last referencing session ends
+# ```
+# * * * * *
+# 
+# ### Key Differences
+# 
+# | Feature | Local Temp Table (#) | Global Temp Table (##) |
+# | --- | --- | --- |
+# | Scope | Single session | Multiple sessions |
+# | Lifespan | Ends with session | Ends when last session ends |
+# | Visibility | Only in session that created it | Accessible to all sessions in DB |
+# | Use Case | Session-specific temporary data | Shared temporary data between sessions |
+# 
+# * * * * *
+# 
+# ### Interview Tip ⚡
+# 
+# -   Use **local temp tables** for session-specific computations.
+# 
+# -   Use **global temp tables** for sharing temporary results across sessions, but be cautious of conflicts with other users.
 
 
-# METADATA ********************
+# MARKDOWN ********************
 
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
+# # Question 42  
+# ## How do you create a copy of a table in SQL Server?
+# 
+# ### Short Answer
+# You can create a copy of a table using either:
+# 1. `SELECT INTO` — creates a new table with the same structure and copies data  
+# 2. `INSERT INTO` — copies data into an existing table  
+# 
+# ---
+# 
+# ### Long Answer
+# 
+# In SQL Server, creating a copy of a table depends on whether you want to **create a new table** or **copy data into an existing table**.  
+# 
+# ---
+# 
+# ### 1. Using `SELECT INTO` Statement
+# - Creates a **new table** with the same structure as the source table
+# - Copies all the data from the source table into the new table
+# 
+# ```sql
+# -- Example: Create a copy of old_table into new_table
+# SELECT *
+# INTO new_table
+# FROM old_table;
+# ```
+# **Notes:**
+# 
+# -   `new_table` will automatically inherit the column names and data types from `old_table`
+# 
+# -   Constraints (primary key, foreign key, indexes) are **not copied** with this method
+# 
+# -   Very useful for quickly creating a backup or temporary copy of a table
+# 
+# * * * * *
+# 
+# ### 2\. Using `INSERT INTO` Statement
+# 
+# -   Copies data from the source table into an **already existing table**
+# 
+# -   The existing table must have the same column structure (or compatible columns)
+# ```sql
+# -- Step 1: Create a new table (structure only)
+# CREATE TABLE new_table (
+#     ID INT,
+#     Name NVARCHAR(50),
+#     Salary DECIMAL(10,2)
+# );
+# 
+# -- Step 2: Insert data from old_table
+# INSERT INTO new_table
+# SELECT *
+# FROM old_table;
+# ```
+# **Notes:**
+# 
+# -   Useful when you already have a table created with specific constraints, indexes, or data types
+# 
+# -   Preserves existing table definitions like primary keys, defaults, and indexes
+# 
+# * * * * *
+# 
+# ### Summary
+# 
+# | Method | Creates New Table? | Copies Data? | Copies Constraints/Indexes? |
+# | --- | --- | --- | --- |
+# | `SELECT INTO` | Yes | Yes | No |
+# | `INSERT INTO` | No (existing table required) | Yes | Yes, if table already has them |
+# 
+# **Pro Tip:**
+# 
+# -   Use `SELECT INTO` for a **quick copy without constraints**
+# 
+# -   Use `INSERT INTO` if you need **full control over table structure and constraints**
+
+
+# MARKDOWN ********************
+
+# Question 43: How to Change the Data Type of a Column in SQL
+# -----------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   Use **ALTER TABLE** with **ALTER COLUMN** to modify a column's data type.
+# 
+# -   Syntax: `ALTER TABLE table_name ALTER COLUMN column_name new_data_type;`
+# 
+# -   Changing data types may cause **data loss**, affect **constraints/indexes**, or require **downtime**.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# Altering a column's data type lets you adjust the kind of data a column can store.\
+# Different database systems may have **slightly different syntax** and limitations, so always check your DBMS documentation.
+# 
+# * * * * *
+# 
+# ### 1\. ALTER TABLE with ALTER COLUMN
+# 
+# -   **ALTER TABLE** specifies the table to modify.
+# 
+# -   **ALTER COLUMN** identifies the column and the new data type.
+# 
+# -   Works for changing numeric, string, date, or other types depending on DBMS.
+# 
+# **Example:**
+# ```sql
+# ALTER TABLE Employees
+# ALTER COLUMN Age INT;
+# ```
+# ### 2\. Considerations When Changing Data Types
+# 
+# -   **Data Conversion:** Existing values might be **truncated or lost** if incompatible with the new type.
+# 
+# -   **Constraints and Indexes:** Columns with **PRIMARY KEY, FOREIGN KEY, UNIQUE, or INDEX** may need to be **dropped and recreated**.
+# 
+# -   **Potential Downtime:** Large tables may take **significant time** to process, causing temporary unavailability.
+# 
+# -   **Testing:** Always perform changes in a **test environment** and **back up data** first.
+# 
+# -   **Impacted Queries:** Queries, stored procedures, and applications using the column may require **updates** to accommodate the new type.
+# 
+# ### Interview Tip
+# 
+# -   Always **backup** before altering data types.
+# 
+# -   Be aware of **data loss, constraints, and application impacts**.
+# 
+# -   For large tables, consider **off-peak maintenance windows**.
+
+
+# MARKDOWN ********************
+
+# Question 44: What Data Type Should You Use to Store Monetary Values in SQL
+# --------------------------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   Use **DECIMAL** (or **NUMERIC**) for monetary values.
+# 
+# -   **DECIMAL(p, s)** specifies **precision** (total digits) and **scale** (digits after decimal).
+# 
+# -   Avoid **FLOAT** or **REAL** to prevent **rounding errors**.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# Monetary values require **precise decimal representation**.\
+# **DECIMAL/NUMERIC** are fixed-point data types designed for **accurate calculations**, unlike floating-point types which can introduce rounding errors.
+# 
+# * * * * *
+# 
+# ### 1\. DECIMAL Data Type
+# 
+# -   **Precision (p):** Total number of digits stored (left + right of decimal).
+# 
+# -   **Scale (s):** Number of digits **after the decimal point**.
+# 
+# -   Suitable for **financial and accounting applications**.
+# 
+# **Example:**
+# ```sql
+# CREATE TABLE FinancialData (
+#    TransactionID INT PRIMARY KEY,
+#    Amount DECIMAL(10,2)
+# );
+# ```
+# -   Here, `Amount` can store values up to **99999999.99**.
+# 
+# ### 2\. Why Not FLOAT or REAL?
+# 
+# -   **FLOAT/REAL** are **approximate** data types.
+# 
+# -   Can produce **rounding errors** in calculations.
+# 
+# -   Not reliable for **money, accounting, or precise calculations**.
+# 
+# ### Interview Tip
+# 
+# -   Always use **DECIMAL or NUMERIC** for money.
+# 
+# -   Choose **precision and scale** according to the **maximum expected value**.
+# 
+# -   Avoid FLOAT/REAL for financial calculations to ensure **accuracy**.
+
+
+# MARKDOWN ********************
+
+# Question 45: What Does `SELECT 3/2` Return in SQL -- 1 or 1.5?
+# -------------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   **`SELECT 3/2`** returns **1** in SQL when both operands are integers.
+# 
+# -   Fractional parts are **truncated** in integer division.
+# 
+# -   To get a decimal result, use **decimal or floating-point literals**: `3.0/2` or `3/2.0` → **1.5**.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# In SQL, arithmetic operations depend on the **data types of the operands**:
+# 
+# -   **Integer ÷ Integer** → integer division (fractional part truncated).
+# 
+# -   **Decimal/Float ÷ Any Number** → decimal division (fraction preserved).
+# 
+# * * * * *
+# 
+# ### 1\. Integer Division
+# 
+# -   Occurs when **both numbers are integers**.
+# 
+# -   Truncates the **decimal part**, returning only the integer portion.
+# 
+# **Example:**
+# ```sql
+# SELECT 3 / 2 AS Result;
+# -- Returns 1
+# ```
+# ### 2\. Decimal or Floating-Point Division
+# 
+# -   Use **decimal literals** (`3.0`) or **cast integers** to decimal.
+# 
+# -   Preserves fractional results.
+# 
+# **Examples:**
+# ```sql
+# SELECT 3.0 / 2 AS Result;   -- Returns 1.5
+# SELECT 3 / 2.0 AS Result;   -- Returns 1.5
+# SELECT CAST(3 AS DECIMAL) / 2 AS Result; -- Returns 1.5
+# ```
+# ### Interview Tip
+# 
+# -   Always **check operand types** in SQL division.
+# 
+# -   Integer ÷ Integer → **truncated result**.
+# 
+# -   Use **decimal literals or CAST** to get accurate fractional results.
+
+
+# MARKDOWN ********************
+
+# Question 46: Maximum Value of DECIMAL(6,5) in SQL Server
+# --------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   **DECIMAL(p, s)** stores numbers with **fixed precision and scale**.
+# 
+# -   **DECIMAL(6,5)** → **6 total digits**, **5 decimal places**.
+# 
+# -   Maximum value = **0.99999**.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# **DECIMAL(p, s)** defines:
+# 
+# -   **Precision (p):** Total digits allowed (left + right of decimal).
+# 
+# -   **Scale (s):** Digits allowed **after the decimal point**.
+# 
+# For **DECIMAL(6,5)**:
+# 
+# -   Precision = 6
+# 
+# -   Scale = 5
+# 
+# -   Integer digits = 6 - 5 = 1
+# 
+# -   Maximum value occurs when all digits are **9** in decimal places: **0.99999**
+# 
+# * * * * *
+# 
+# ### 1\. Understanding Precision and Scale
+# 
+# -   **Precision (p):** Total number of digits (max size of the number).
+# 
+# -   **Scale (s):** Number of digits **to the right of the decimal**.
+# 
+# -   Formula: `Integer digits = Precision - Scale`
+# 
+# **Example:**
+# ```sql
+# DECLARE @Value DECIMAL(6,5);
+# SET @Value = 0.99999;
+# SELECT @Value AS MaxValue;
+# -- Returns 0.99999
+# ```
+# ### 2\. Notes
+# 
+# -   Changing precision or scale changes **max/min values**.
+# 
+# -   Storage depends on precision (SQL Server uses 5--17 bytes depending on precision).
+# 
+# -   Negative numbers allowed: min value = **-0.99999**
+# 
+# ### Interview Tip
+# 
+# -   Always compute **integer digits = precision - scale**.
+# 
+# -   For monetary or fractional values, carefully choose **precision and scale**.
+# 
+# -   Remember: **DECIMAL stores exact values**, unlike FLOAT or REAL.
+
+
+# MARKDOWN ********************
+
+# Question 47: What Does `SELECT * FROM TestTable WHERE ID != 101` Return When Table Has 101, 201, and NULL?
+# ----------------------------------------------------------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   Returns only rows where **ID is not 101**.
+# 
+# -   **NULL comparisons** result in **Unknown**, so rows with NULL are **excluded**.
+# 
+# -   Result for the table `[101, 201, NULL]` → **one row with ID = 201**.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# In SQL, comparisons follow **three-valued logic**: **True, False, Unknown**.
+# 
+# -   `ID != 101` is evaluated as:
+# 
+#     -   101 != 101 → **False**
+# 
+#     -   201 != 101 → **True**
+# 
+#     -   NULL != 101 → **Unknown**
+# 
+# -   SQL **only includes rows where the condition evaluates to True**.
+# 
+# -   Rows evaluating to False or Unknown are **excluded**.
+# 
+# * * * * *
+# 
+# ### 1\. Handling NULL in Comparisons
+# 
+# -   Any comparison with **NULL** (`=`, `!=`, `<`, `>`, etc.) returns **Unknown**.
+# 
+# -   Unknown rows **do not appear** in the result set.
+# 
+# **Example Table:**
+# 
+# | ID |
+# | --- |
+# | 101 |
+# | 201 |
+# | NULL |
+# 
+# **Query:**
+# ```sql
+# SELECT *
+# FROM TestTable
+# WHERE ID != 101;
+# ```
+# **Result:**
+# 
+# | ID |
+# | --- |
+# | 201 |
+# 
+# ### 2\. Including NULLs Explicitly
+# 
+# -   To include NULLs, use **`IS NULL`** or **`OR ID IS NULL`**:
+# ```sql
+# SELECT *
+# FROM TestTable
+# WHERE ID != 101 OR ID IS NULL;
+# ```
+# **Result:**
+# 
+# | ID |
+# | --- |
+# | 201 |
+# | NULL |
+# 
+# ### Interview Tip
+# 
+# -   Always remember **NULL is not equal to anything**, even itself.
+# 
+# -   Comparisons with NULL → **Unknown** → excluded from query results unless explicitly handled.
+# 
+# -   Use **`IS NULL`** or **`IS NOT NULL`** to include/exclude NULLs in conditions.
+
+
+# MARKDOWN ********************
+
+# Question 48: What Is Your Favorite SQL Book?
+# --------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   Interviewers ask this to **check your familiarity with SQL resources**.
+# 
+# -   Name a book you have **read or are reading**.
+# 
+# -   If you haven't read any, consider:
+# 
+#     -   **Head First SQL** -- great for beginners learning SQL from scratch.
+# 
+#     -   **Joe Celko's SQL Puzzles and Answers** -- ideal for practicing complex queries.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# This is a **soft interview question**, not a technical one.
+# 
+# -   Shows your **learning attitude** and **interest in improving SQL skills**.
+# 
+# -   Having a book reference demonstrates that you **actively study SQL** and are aware of reliable resources.
+# 
+# * * * * *
+# 
+# ### 1\. Recommended Books
+# 
+# -   **Head First SQL**
+# 
+#     -   Beginner-friendly.
+# 
+#     -   Covers basic concepts like SELECT, JOINs, aggregation, and subqueries.
+# 
+# -   **Joe Celko's SQL Puzzles and Answers**
+# 
+#     -   Advanced.
+# 
+#     -   Focuses on **problem-solving** and **complex queries**.
+# 
+#     -   Helps improve logical thinking and query optimization skills.
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Mention a book you **actually know** and can discuss briefly.
+# 
+# -   Shows that you **actively practice SQL** and are curious about improving your skills.
+# 
+# -   Even if you haven't read any, **naming a recommended book** shows initiative.
+
+
+# MARKDOWN ********************
+
+# Question 49: Tell Me Two SQL Best Practices You Follow
+# ------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   **Creating and using indexes** to improve query performance.
+# 
+# -   **Normalization** to organize data efficiently.
+# 
+# -   **Updating statistics** regularly for query optimization.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# Following SQL best practices ensures **better performance, security, and maintainability**. Two widely recommended practices are:
+# 
+# * * * * *
+# 
+# ### 1\. Parameterized Queries
+# 
+# -   Always use **parameterized queries** or **prepared statements** to prevent **SQL injection attacks**.
+# 
+# -   Pass user inputs as **parameters**, not directly in SQL statements.
+# 
+# -   Benefits:
+# 
+#     -   Enhances **security** by blocking malicious inputs.
+# 
+#     -   Improves **query performance** through cached execution plans.
+# 
+# **Example (SQL Server, T-SQL):**
+# ```sql
+# DECLARE @name VARCHAR(50);
+# SET @name = 'Fuller';
+# SELECT * FROM Employees
+# WHERE LastName = @name;
+# ```
+# * * * * *
+# 
+# ### 2\. Use Indexes Wisely
+# 
+# -   Apply **indexes** on columns frequently used in **search, join, or filter operations**.
+# 
+# -   Benefits:
+# 
+#     -   Reduces **full table scans**, improving query performance.
+# 
+#     -   Helps optimize **JOINs and WHERE filters**.
+# 
+# -   Caution:
+# 
+#     -   Excessive indexing increases **storage requirements** and **slows write operations**.
+# 
+#     -   Monitor **query execution plans** to ensure effective index usage.
+# 
+# **Example:**
+# ```sql
+# CREATE INDEX idx_LastName ON Employees(LastName);
+# ```
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Always mention **both security and performance practices**.
+# 
+# -   Parameterized queries → **prevent SQL injection**.
+# 
+# -   Indexes → **speed up queries**, but balance to avoid overhead.
+# 
+# -   Normalization and updating statistics → ensure **maintainability and efficiency**.
+
+
+# MARKDOWN ********************
+
+# Question 50: What Are the Different Isolation Levels in Microsoft SQL Server?
+# -----------------------------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   **Isolation levels** define how transactions **interact in a multi-user environment**.
+# 
+# -   Standard levels in SQL Server:
+# 
+#     1.  **READ UNCOMMITTED** -- least restrictive, allows **dirty reads**.
+# 
+#     2.  **READ COMMITTED** -- default, reads only **committed data**.
+# 
+#     3.  **REPEATABLE READ** -- prevents updates to rows read by the transaction.
+# 
+#     4.  **SERIALIZABLE** -- highest isolation, prevents inserts, updates, deletes affecting the result set.
+# 
+#     5.  **SNAPSHOT** -- uses **row versioning**, sees a consistent snapshot.
+# 
+#     6.  **READ COMMITTED SNAPSHOT** -- **row versioning** with committed-read behavior.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# Isolation levels control **how concurrent transactions affect each other** and the **consistency of data**.\
+# They balance **data integrity** and **concurrency**. SQL Server provides **six main isolation levels**, each with its own behavior:
+# 
+# * * * * *
+# 
+# ### 1\. READ UNCOMMITTED
+# 
+# -   Least restrictive isolation.
+# 
+# -   Transactions can read **uncommitted changes** from others (**dirty reads**).
+# 
+# -   May cause **non-repeatable reads** and **phantom reads**.
+# 
+# **Example:**
+# ```sql
+# SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+# SELECT * FROM Orders;
+# ```
+# * * * * *
+# 
+# ### 2\. READ COMMITTED
+# 
+# -   Default SQL Server isolation level.
+# 
+# -   Reads only **committed data**, avoiding **dirty reads**.
+# 
+# -   May still experience **non-repeatable reads** and **phantom reads**.
+# 
+# **Example:**
+# ```sql
+# SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+# SELECT * FROM Orders;
+# ```
+# * * * * *
+# 
+# ### 3\. REPEATABLE READ
+# 
+# -   Prevents **other transactions from updating or deleting rows** read by the current transaction.
+# 
+# -   Guarantees **consistent reads** but **phantom inserts** are still possible.
+# 
+# **Example:**
+# ```sql
+# SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+# SELECT * FROM Orders;
+# ```
+# * * * * *
+# 
+# ### 4\. SERIALIZABLE
+# 
+# -   **Highest isolation level**.
+# 
+# -   Prevents **updates, deletes, or inserts** that affect the transaction's result set.
+# 
+# -   Ensures **maximum data integrity** but reduces concurrency.
+# 
+# **Example:**
+# ```sql
+# SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+# SELECT * FROM Orders;
+# ```
+# * * * * *
+# 
+# ### 5\. SNAPSHOT
+# 
+# -   Uses **row versioning** to show a **consistent snapshot** of data at transaction start.
+# 
+# -   Avoids **blocking reads** and improves concurrency compared to SERIALIZABLE.
+# 
+# **Example:**
+# ```sql
+# SET TRANSACTION ISOLATION LEVEL SNAPSHOT;
+# SELECT * FROM Orders;
+# ```
+# * * * * *
+# 
+# ### 6\. READ COMMITTED SNAPSHOT
+# 
+# -   Similar to **READ COMMITTED**, but uses **row versioning**.
+# 
+# -   Avoids **blocking**, balancing **isolation and concurrency**.
+# 
+# **Example:**
+# ```sql
+# SET TRANSACTION ISOLATION LEVEL READ COMMITTED SNAPSHOT;
+# SELECT * FROM Orders;
+# ```
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Know the **difference between dirty reads, non-repeatable reads, and phantom reads**.
+# 
+# -   Choose isolation levels based on **application needs**:
+# 
+#     -   High integrity → **SERIALIZABLE** or **REPEATABLE READ**.
+# 
+#     -   High concurrency → **READ COMMITTED SNAPSHOT** or **SNAPSHOT**.
+# 
+# -   Be prepared to **explain trade-offs** between **data consistency and performance**.
+
+
+# MARKDOWN ********************
+
+# Question 51: Is a Local Temp Table Available Inside a Stored Procedure?
+# -----------------------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   **Yes**, a local temporary table (`#table_name`) is available inside a stored procedure **if created in the same session**.
+# 
+# -   Local temp tables are **session-specific** and accessible to stored procedures called from the same session.
+# 
+# -   They are **dropped automatically** when the session ends.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# Local temporary tables (`#TempTable`) exist **only for the session that created them**.
+# 
+# -   Any stored procedure executed **within that session** can access the temp table.
+# 
+# -   After the session ends, the temp table is **automatically dropped**.
+# 
+# * * * * *
+# 
+# ### 1\. Creating and Using a Local Temp Table
+# 
+# -   Local temp table: `#TempTable`
+# 
+# -   Session-specific, accessible **across procedures in the same session**.
+# 
+# **Example:**
+# ```sql
+# CREATE TABLE #TempTable(
+#     ID INT,
+#     Name VARCHAR(50)
+# );
+# 
+# INSERT INTO #TempTable (ID, Name)
+# VALUES (1,'John'), (2,'Jane');
+# ```
+# * * * * *
+# 
+# ### 2\. Accessing Temp Table Inside a Stored Procedure
+# 
+# -   The stored procedure can **select, update, or delete** data from the temp table.
+# 
+# **Example:**
+# ```sql
+# CREATE PROCEDURE YourStoredProcedure
+# AS
+# BEGIN
+#     SELECT * FROM #TempTable;
+# END;
+# 
+# EXEC YourStoredProcedure;
+# ```
+# -   Output: The procedure successfully returns the rows in `#TempTable`.
+# 
+# * * * * *
+# 
+# ### 3\. Important Notes
+# 
+# -   Local temp tables are **dropped automatically** when the session ends.
+# 
+# -   If the temp table is created **inside the stored procedure**, it exists **only for the duration of that procedure**.
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Remember: `#TempTable` → session-specific, accessible by procedures in the **same session**.
+# 
+# -   `##GlobalTempTable` → available to **all sessions** until the last session using it ends.
+# 
+# -   Good question to **test your understanding of scope and temp table lifetime**.
+
+
+# MARKDOWN ********************
+
+# Question 52: Which Date Format Is Safe to Use When Passing Dates as Strings?
+# ----------------------------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   The **ISO 8601 format** is the safest for passing dates as strings.
+# 
+# -   **Date only:** `"YYYY-MM-DD"` → e.g., `"2023-08-05"`
+# 
+# -   **Date and time:** `"YYYY-MM-DDTHH:MM:SS"` → e.g., `"2023-08-05T15:30:00"`
+# 
+# -   Reduces **ambiguity** and is widely supported across databases and programming languages.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# Passing dates as strings can lead to **misinterpretation** due to **regional or locale settings**.
+# 
+# -   ISO 8601 is **unambiguous**, universally recognized, and **least affected by locale**.
+# 
+# -   Helps ensure **consistent parsing** across SQL Server, Oracle, MySQL, PostgreSQL, and other systems.
+# 
+# * * * * *
+# 
+# ### 1\. ISO 8601 Date Format
+# 
+# -   **Date only:** `"YYYY-MM-DD"`
+# 
+#     -   Example: `"2023-08-05"`
+# 
+#     -   Safe for **INSERT, UPDATE, WHERE clauses**.
+# 
+# -   **Timestamp with time:** `"YYYY-MM-DDTHH:MM:SS"`
+# 
+#     -   Example: `"2023-08-05T15:30:00"`
+# 
+#     -   Can include **time zone information** if supported by the database.
+# 
+# **Example:**
+# ```sql
+# -- Insert using ISO 8601 date
+# INSERT INTO Orders(OrderDate)
+# VALUES ('2023-08-05');
+# 
+# -- Insert using ISO 8601 timestamp
+# INSERT INTO Orders(OrderDateTime)
+# VALUES ('2023-08-05T15:30:00');
+# ```
+# * * * * *
+# 
+# ### 2\. Why Other Formats Can Be Risky
+# 
+# -   Formats like `"MM/DD/YYYY"` or `"DD/MM/YYYY"` may be **interpreted differently** depending on server locale.
+# 
+# -   Ambiguity can lead to **incorrect data insertion or query results**.
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Always use **ISO 8601** when passing dates as strings in SQL queries.
+# 
+# -   If working with **non-ISO formats**, ensure **explicit conversion** using `CAST` or `CONVERT`.
+# 
+# -   ISO 8601 → **safe, consistent, and portable** across environments.
+
+
+# MARKDOWN ********************
+
+# Question 53: How Do You Suppress "Rows Affected" Messages in SQL Server?
+# ------------------------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   Use `SET NOCOUNT ON` **before** your INSERT (or other DML) statements.
+# 
+# -   Suppresses the **"X rows affected"** informational message.
+# 
+# -   Restore default behavior with `SET NOCOUNT OFF` if needed.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# By default, SQL Server returns a message showing the **number of rows affected** by `INSERT`, `UPDATE`, or `DELETE`.
+# 
+# -   This can **clutter output**, especially during **bulk operations** or when executing scripts programmatically.
+# 
+# -   `SET NOCOUNT ON` stops SQL Server from sending these messages for the session or batch.
+# 
+# * * * * *
+# 
+# ### 1\. Using SET NOCOUNT
+# 
+# -   Syntax:
+# ```sql
+# SET NOCOUNT ON;
+# 
+# INSERT INTO Employees (ID, Name)
+# VALUES (1, 'John'), (2, 'Jane');
+# 
+# SET NOCOUNT OFF;  -- Optional: restore default behavior
+# ```
+# -   `SET NOCOUNT ON` affects **all subsequent statements** in the session or batch.
+# 
+# -   Makes output cleaner for **stored procedures, scripts, or automated jobs**.
+# 
+# * * * * *
+# 
+# ### 2\. Benefits
+# 
+# -   Reduces **network traffic** when executing multiple statements.
+# 
+# -   Prevents **interference with client applications** that rely on row counts.
+# 
+# -   Especially useful in **stored procedures** and **bulk inserts**.
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Remember: **SET NOCOUNT ON** is **SQL Server-specific**.
+# 
+# -   Always consider **re-enabling** with `SET NOCOUNT OFF` if the client application relies on row counts.
+# 
+# -   Mention its use to **improve performance and cleaner outputs** in procedural or batch operations.
+
+
+# MARKDOWN ********************
+
+# Question 54: Difference Between ANSI-89 and ANSI-92 SQL Join Syntax
+# -------------------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   **ANSI-89**: Uses **WHERE clause** for joins, mixing **join conditions and filters**.
+# 
+# -   **ANSI-92**: Uses **explicit JOIN keywords** (`INNER JOIN`, `LEFT JOIN`, etc.), separating **joins from filters**.
+# 
+# -   ANSI-92 is **more readable, maintainable, and supports complex joins**.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# SQL has evolved in its **join syntax**:
+# 
+# -   **ANSI-89**: Older style, joins written in the `WHERE` clause.
+# 
+# -   **ANSI-92 (SQL-92)**: Introduced **explicit JOIN keywords**, improving clarity and reducing ambiguity.
+# 
+# * * * * *
+# 
+# ### 1\. ANSI-89 Syntax
+# 
+# -   Joins are expressed in the `WHERE` clause.
+# 
+# -   Can be **confusing**, especially with multiple joins and filter conditions.
+# 
+# **Example:**
+# ```sql
+# SELECT E.Name, D.DepartmentName
+# FROM Employees E, Departments D
+# WHERE E.DepartmentID = D.DepartmentID
+#   AND D.DepartmentName = 'Sales';
+# ```
+# * * * * *
+# 
+# ### 2\. ANSI-92 Syntax
+# 
+# -   Uses **explicit JOINs** and **ON clause** for join conditions.
+# 
+# -   Separates **joining** from **filtering**.
+# 
+# -   Easier to **read, maintain, and optimize**.
+# 
+# **Example:**
+# ```sql
+# SELECT E.Name, D.DepartmentName
+# FROM Employees E
+# INNER JOIN Departments D
+#     ON E.DepartmentID = D.DepartmentID
+# WHERE D.DepartmentName = 'Sales';
+# ```
+# * * * * *
+# 
+# ### 3\. Key Differences
+# 
+# | Feature | ANSI-89 | ANSI-92 |
+# | --- | --- | --- |
+# | Join Specification | `WHERE` clause | `JOIN` keyword with `ON` |
+# | Readability | Low for multiple joins | High, clear separation of joins and filters |
+# | Support for Complex Joins | Limited | Supports INNER, LEFT, RIGHT, FULL joins |
+# | Query Optimization | Less efficient | Better optimizer support in modern DBMS |
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   **Always prefer ANSI-92 syntax** in modern SQL.
+# 
+# -   Explicit JOINs reduce **bugs, ambiguity, and maintenance overhead**.
+# 
+# -   Be ready to **rewrite old ANSI-89 queries using ANSI-92** during interviews.
+
+
+# MARKDOWN ********************
+
+# Question 55: Differences Between IN and EXISTS (and NOT IN, NOT EXISTS) in SQL
+# ------------------------------------------------------------------------------
+# 
+# ### Short Answer
+# 
+# -   **IN**: Compares a value to a set or subquery; true if **any match** exists.
+# 
+# -   **EXISTS**: Checks for **existence of rows** in a subquery; true if **subquery returns any row**.
+# 
+# -   **NOT IN**: True if the value **does not exist** in a set or subquery.
+# 
+# -   **NOT EXISTS**: True if the **subquery returns no rows**.
+# 
+# -   **Key Difference**: IN/NOT IN compare values, EXISTS/NOT EXISTS check for row existence, often more efficient in correlated subqueries.
+# 
+# * * * * *
+# 
+# ### Detailed Explanation
+# 
+# -   **IN / NOT IN**: Compare a value directly against a list or subquery result.
+# 
+# -   **EXISTS / NOT EXISTS**: Test **whether a subquery returns any rows**, usually with a **correlated subquery**.
+# 
+# -   EXISTS can be **more efficient**, as it stops evaluating once a match is found.
+# 
+# -   Choice depends on **scenario and data structure**.
+# 
+# * * * * *
+# 
+# ### 1\. IN Operator
+# 
+# -   Returns rows where a value **matches any value** in a list or subquery.
+# 
+# **Example:**
+# ```sql
+# SELECT *
+# FROM Employees
+# WHERE DepartmentID IN (101, 102, 103);
+# ```
+# * * * * *
+# 
+# ### 2\. EXISTS Operator
+# 
+# -   Returns true if a **subquery returns any rows**.
+# 
+# **Example:**
+# ```sql
+# SELECT *
+# FROM Orders O
+# WHERE EXISTS (
+#     SELECT 1
+#     FROM Customers C
+#     WHERE C.CustomerID = O.CustomerID
+# );
+# ```
+# * * * * *
+# 
+# ### 3\. NOT IN Operator
+# 
+# -   Returns rows where a value **does not match any value** in a list or subquery.
+# 
+# **Example:**
+# ```sql
+# SELECT *
+# FROM Students
+# WHERE Age NOT IN (18, 19, 20);
+# ```
+# * * * * *
+# 
+# ### 4\. NOT EXISTS Operator
+# 
+# -   Returns true if the **subquery returns no rows**.
+# 
+# **Example:**
+# ```sql
+# SELECT *
+# FROM Products P
+# WHERE NOT EXISTS (
+#     SELECT 1
+#     FROM Orders O
+#     WHERE O.ProductID = P.ProductID
+# );
+# ```
+# * * * * *
+# 
+# ### Key Differences
+# 
+# | Feature | IN / NOT IN | EXISTS / NOT EXISTS |
+# | --- | --- | --- |
+# | Comparison Type | Direct value comparison | Row existence check |
+# | Typical Use | List of values or subquery | Correlated subqueries |
+# | Efficiency | Can be slower with large subquery results | Stops at first match → usually more efficient |
+# | NULL Handling | NULL in subquery can cause unexpected results | Handles NULLs more reliably |
+# 
+# * * * * *
+# 
+# ### Interview Tip
+# 
+# -   Use **IN / NOT IN** for **small lists** or simple subqueries.
+# 
+# -   Use **EXISTS / NOT EXISTS** for **correlated subqueries** or large datasets.
+# 
+# -   Be aware of **NULLs**, which can affect NOT IN results unexpectedly.
+# 
+# -   Highlight understanding of **performance differences** during interviews.
+
